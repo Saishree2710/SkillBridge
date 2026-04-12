@@ -4,6 +4,9 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const providerRoutes = require('./routes/providerRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // Load env vars
 dotenv.config();
@@ -23,6 +26,9 @@ app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/provider', providerRoutes);
 app.use('/api/public/providers', providerRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 
 app.get('/', (req, res) => {

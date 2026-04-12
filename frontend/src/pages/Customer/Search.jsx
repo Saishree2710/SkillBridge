@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { SearchIcon, MapPin, IndianRupee, Star, CheckCircle, XCircle, Navigation, Map as MapIcon } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -233,9 +234,9 @@ const Search = () => {
                     {provider.finalScore !== undefined && (
                       <div className="text-xs text-gray-500 mb-2">Algorithm Match Score: {provider.finalScore.toFixed(0)}</div>
                     )}
-                    <button className="w-full bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
+                    <Link to={`/provider/${provider._id}`} className="block text-center w-full bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
                       View Full Profile
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

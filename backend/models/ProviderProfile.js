@@ -31,6 +31,25 @@ const providerProfileSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  availabilityConfig: {
+    workingDays: {
+      type: [String],
+      enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      default: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    },
+    startTime: {
+      type: String,
+      default: '08:30'
+    },
+    endTime: {
+      type: String,
+      default: '19:00'
+    },
+    slotDuration: {
+      type: Number,
+      default: 60 // minutes
+    }
+  },
   profilePhoto: {
     type: String, // URL from Cloudinary
     default: ''
@@ -40,6 +59,22 @@ const providerProfileSchema = new mongoose.Schema({
     default: 0
   },
   totalReviews: {
+    type: Number,
+    default: 0
+  },
+  trustScore: {
+    type: Number,
+    default: 0
+  },
+  badges: {
+    type: [String],
+    default: []
+  },
+  completedJobs: {
+    type: Number,
+    default: 0
+  },
+  profileViews: {
     type: Number,
     default: 0
   }

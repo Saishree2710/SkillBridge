@@ -23,7 +23,7 @@ const Login = () => {
       const data = await login(email, password);
       // redirect based on role if no specific redirect provided
       if (redirect === '/') {
-        navigate(data.role === 'provider' ? '/profile' : '/search');
+        navigate('/');
       } else {
         navigate(redirect);
       }

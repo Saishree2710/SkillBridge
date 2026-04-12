@@ -120,8 +120,29 @@ const searchProviders = async (req, res) => {
   }
 };
 
+// @desc    Get single provider by ID
+// @route   GET /api/public/providers/:id
+// @access  Public
+const getProviderById = async (req, res) => {
+  try {
+    const provider = await ProviderProfile.findById(req.params.id).populate('user', 'name email');
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider not found' });
+    }
+    
+    // Increment profile views
+    provider.profileViews += 1;
+    await provider.save();
+
+    res.json(provider);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   upsertProviderProfile,
   getProviderProfile,
-  searchProviders
+  searchProviders,
+  getProviderById
 };

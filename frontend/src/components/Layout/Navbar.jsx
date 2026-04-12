@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, User, Search, Briefcase } from 'lucide-react';
+import { LogOut, User, Search, Briefcase, Calendar } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -24,14 +24,30 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
+                <Link to="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  <Briefcase className="h-4 w-4 mr-1" /> Home
+                </Link>
                 {user.role === 'customer' ? (
-                  <Link to="/search" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                    <Search className="h-4 w-4 mr-1" /> Find Providers
-                  </Link>
+                  <>
+                    <Link to="/search" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                      <Search className="h-4 w-4 mr-1" /> Find Providers
+                    </Link>
+                    <Link to="/bookings" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" /> My Bookings
+                    </Link>
+                  </>
                 ) : (
-                  <Link to="/profile" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                    <User className="h-4 w-4 mr-1" /> My Profile
-                  </Link>
+                  <>
+                    <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                      <Briefcase className="h-4 w-4 mr-1" /> Dashboard
+                    </Link>
+                    <Link to="/requests" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" /> Booking Requests
+                    </Link>
+                    <Link to="/profile" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                      <User className="h-4 w-4 mr-1" /> My Profile
+                    </Link>
+                  </>
                 )}
                 <div className="text-sm font-medium text-gray-500 hidden sm:block">
                   Hello, {user.name}
