@@ -5,9 +5,9 @@ import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { MapPin, IndianRupee, Star, Calendar, Clock } from 'lucide-react';
 
-const generateTimeSlots = () => {
+const generateTimeSlots = (selectedDate) => {
   // Hardcoded for 8:30 AM to 7:00 PM as per requirement
-  return [
+  const allSlots = [
     '08:30 - 09:30',
     '09:30 - 10:30',
     '10:30 - 11:30',
@@ -19,6 +19,30 @@ const generateTimeSlots = () => {
     '16:30 - 17:30',
     '17:30 - 18:30'
   ];
+  
+  if (!selectedDate) return allSlots;
+
+  const todayStr = new Date().toLocaleDateString('en-CA'); // Gets local YYYY-MM-DD
+  const [selectedYear, selectedMonth, selectedDay] = selectedDate.split('-');
+  const selectedDateObj = new Date(selectedYear, selectedMonth - 1, selectedDay);
+  const now = new Date();
+  
+  // If the selected date is today, filter out past slots
+  // Using toLocaleDateString('en-CA') as a generic way to grab YYYY-MM-DD cleanly across timezones
+  if (selectedDate === todayStr || (selectedDateObj.getDate() === now.getDate() && selectedDateObj.getMonth() === now.getMonth() && selectedDateObj.getFullYear() === now.getFullYear())) {
+    const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+
+    return allSlots.filter(slot => {
+      const startTimeStr = slot.split(' - ')[0]; // e.g. "08:30"
+      const [hours, minutes] = startTimeStr.split(':').map(Number);
+      const slotTotalMinutes = hours * 60 + minutes;
+
+      // Ensure the slot hasn't started yet
+      return slotTotalMinutes > currentTotalMinutes;
+    });
+  }
+
+  return allSlots;
 };
 
 const getDayName = (dateString) => {
@@ -92,10 +116,10 @@ const ProviderDetail = () => {
   if (loading) return <div className="text-center py-20">Loading...</div>;
   if (error || !provider) return <div className="text-center py-20 text-red-500">{error}</div>;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
   const dayName = getDayName(bookingDate);
   const isWorkingDay = dayName && provider.availabilityConfig?.workingDays?.includes(dayName);
-  const slots = generateTimeSlots();
+  const slots = generateTimeSlots(bookingDate);
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">

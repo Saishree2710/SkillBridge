@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { SearchIcon, MapPin, IndianRupee, Star, CheckCircle, XCircle, Navigation, Map as MapIcon } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet default icon in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,8 +17,10 @@ L.Icon.Default.mergeOptions({
 function MapBoundsUpdater({ providers, userLat, userLng }) {
   const map = useMap();
   useEffect(() => {
-    if (providers.length > 0) {
-      const bounds = L.latLngBounds(providers.map(p => [p.location.lat, p.location.lng]));
+    const validProviders = providers.filter(p => p.location && (p.location.lat !== 0 || p.location.lng !== 0));
+
+    if (validProviders.length > 0) {
+      const bounds = L.latLngBounds(validProviders.map(p => [p.location.lat, p.location.lng]));
       if (userLat && userLng) {
         bounds.extend([parseFloat(userLat), parseFloat(userLng)]);
       }
@@ -44,6 +47,38 @@ const Search = () => {
     userLat: '',
     userLng: ''
   });
+  
+  const [locationName, setLocationName] = useState('');
+
+  // Auto-reverse geocode when coordinates change
+  useEffect(() => {
+    if (filters.userLat && filters.userLng) {
+      axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${filters.userLat}&lon=${filters.userLng}`)
+        .then(res => {
+          if (res.data && res.data.display_name) {
+            // Give them a short, readable version
+            const addressParts = res.data.display_name.split(',');
+            setLocationName(addressParts.slice(0, 2).join(',').trim());
+          }
+        })
+        .catch(err => console.log('Geocoding error:', err));
+    } else {
+      setLocationName('');
+    }
+  }, [filters.userLat, filters.userLng]);
+
+  function MapEvents() {
+    useMapEvents({
+      click(e) {
+        setFilters(prev => ({
+          ...prev,
+          userLat: e.latlng.lat,
+          userLng: e.latlng.lng
+        }));
+      },
+    });
+    return null;
+  }
 
   const handleInputChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -129,18 +164,27 @@ const Search = () => {
               <button 
                 type="button" 
                 onClick={handleGetLocation}
-                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200"
+                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors"
+                title="Get Current Location using GPS"
               >
-                <Navigation className="w-3 h-3 mr-1" /> Use Current Location
+                <Navigation className="w-3 h-3 mr-1" /> GPS
               </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Your Latitude</label>
-              <input type="number" step="any" name="userLat" value={filters.userLat} onChange={handleInputChange} placeholder="e.g. 13.0827" className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div className="mt-2">
-              <label className="block text-sm font-medium text-gray-700">Your Longitude</label>
-              <input type="number" step="any" name="userLng" value={filters.userLng} onChange={handleInputChange} placeholder="e.g. 80.2707" className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:ring-blue-500 focus:border-blue-500" />
+            
+            <div className="bg-gray-50 p-3 rounded-md border border-gray-200 mt-2">
+               <label className="block text-xs font-medium text-gray-700 mb-1">Your Location Context</label>
+               {locationName ? (
+                 <div className="flex items-center justify-between text-sm text-blue-700 break-words">
+                   <span className="flex items-center"><MapPin className="w-4 h-4 mr-1 shrink-0" /> {locationName}</span>
+                   <button type="button" onClick={() => { setFilters({...filters, userLat: '', userLng: ''}); setLocationName(''); }} className="text-red-500 hover:text-red-700 ml-2 p-1">
+                     <XCircle className="w-4 h-4" />
+                   </button>
+                 </div>
+               ) : (
+                 <div className="text-xs text-gray-500 italic flex items-center">
+                   Click anywhere on the map or use GPS to set origin
+                 </div>
+               )}
             </div>
           </div>
 
@@ -159,16 +203,19 @@ const Search = () => {
         <div className="mb-6 h-80 rounded-lg overflow-hidden border border-gray-200 shadow-sm relative z-0">
           <MapContainer center={[13.0827, 80.2707]} zoom={12} style={{ height: '100%', width: '100%', zIndex: 0 }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {providers.map(p => (
-              <Marker key={p._id} position={[p.location.lat, p.location.lng]}>
-                <Popup>
-                  <div className="text-center">
-                    <strong className="block text-sm">{p.name}</strong>
-                    <span className="text-xs text-gray-500">{p.serviceCategory}</span>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+            {providers.map(p => {
+              if (!p.location || (p.location.lat === 0 && p.location.lng === 0)) return null;
+              return (
+                <Marker key={p._id} position={[p.location.lat, p.location.lng]}>
+                  <Popup>
+                    <div className="text-center">
+                      <strong className="block text-sm">{p.name}</strong>
+                      <span className="text-xs text-gray-500">{p.serviceCategory}</span>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
             {filters.userLat && filters.userLng && (
               <Marker 
                 position={[parseFloat(filters.userLat), parseFloat(filters.userLng)]} 
@@ -184,6 +231,7 @@ const Search = () => {
                 <Popup><strong>You are here</strong></Popup>
               </Marker>
             )}
+            <MapEvents />
             <MapBoundsUpdater providers={providers} userLat={filters.userLat} userLng={filters.userLng} />
           </MapContainer>
         </div>

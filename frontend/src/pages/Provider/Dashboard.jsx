@@ -29,7 +29,23 @@ const Dashboard = () => {
   if (loading) return <div className="text-center py-20">Loading dashboard...</div>;
   if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
 
-  const { stats, chartData, recentBookings } = dashboardData;
+  if (dashboardData.isProfileComplete === false) {
+    return (
+      <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to your Dashboard!</h2>
+        <p className="text-gray-600 mb-8 max-w-xl mx-auto">
+          Before you can see your analytics and receive bookings, you need to complete your provider profile. 
+          This helps customers understand your services and where you operate.
+        </p>
+        <a href="/profile" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-[var(--primary)] hover:opacity-90">
+          Complete My Profile
+        </a>
+      </div>
+    );
+  }
+
+  // The backend wraps the response payload into a `data` object alongside `success` and `isProfileComplete`
+  const { stats, chartData, recentBookings } = dashboardData.data || dashboardData;
 
   const StatCard = ({ title, value, icon, subtitle }) => (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center">
