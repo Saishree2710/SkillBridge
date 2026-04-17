@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Profile from './pages/Provider/Profile';
+import CustomerProfile from './pages/Customer/Profile';
 import Search from './pages/Customer/Search';
 import ProviderDetail from './pages/Customer/ProviderDetail';
 import CustomerBookings from './pages/Customer/CustomerBookings';
@@ -37,6 +38,12 @@ const AppRoutes = () => {
           <Route path="/profile" element={
             <ProtectedRoute allowedRoles={['provider']}>
               <Profile />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/customer/profile" element={
+            <ProtectedRoute allowedRoles={['customer']}>
+              <CustomerProfile />
             </ProtectedRoute>
           } />
           

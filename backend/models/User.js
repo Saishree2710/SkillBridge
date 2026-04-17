@@ -15,10 +15,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  },
   role: {
     type: String,
     enum: ['customer', 'provider'],
     required: true
+  },
+  phone: {
+    type: String
+  },
+  profilePhoto: {
+    type: String,
+    default: ''
   }
 }, { timestamps: true });
 

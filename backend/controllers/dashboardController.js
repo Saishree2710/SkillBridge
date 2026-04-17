@@ -8,7 +8,7 @@ const getProviderDashboard = async (req, res) => {
   try {
     const profile = await ProviderProfile.findOne({ user: req.user.id });
     if (!profile) {
-      return res.status(404).json({ message: 'Provider profile not found' });
+      return res.status(200).json({ success: true, isProfileComplete: false, data: null });
     }
 
     const providerId = profile._id;
@@ -55,17 +55,21 @@ const getProviderDashboard = async (req, res) => {
     }));
 
     res.json({
-      stats: {
-        totalEarnings,
-        completedJobs: profile.completedJobs,
-        profileViews: profile.profileViews,
-        responseRate,
-        trustScore: profile.trustScore,
-        badges: profile.badges,
-        averageRating: profile.averageRating
-      },
-      chartData: fullChartData,
-      recentBookings: allBookings.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10)
+      success: true,
+      isProfileComplete: true,
+      data: {
+        stats: {
+          totalEarnings,
+          completedJobs: profile.completedJobs,
+          profileViews: profile.profileViews,
+          responseRate,
+          trustScore: profile.trustScore,
+          badges: profile.badges,
+          averageRating: profile.averageRating
+        },
+        chartData: fullChartData,
+        recentBookings: allBookings.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10)
+      }
     });
 
   } catch (error) {

@@ -18,7 +18,12 @@ const upsertProviderProfile = async (req, res) => {
       user: req.user._id,
       name,
       serviceCategory,
-      location: { city, area, lat: parseFloat(lat), lng: parseFloat(lng) },
+      location: { 
+        city, 
+        area, 
+        lat: lat ? parseFloat(lat) : 0, 
+        lng: lng ? parseFloat(lng) : 0 
+      },
       hourlyPricing: parseFloat(hourlyPricing),
       availability: availability === 'true' || availability === true,
     };
@@ -39,6 +44,24 @@ const upsertProviderProfile = async (req, res) => {
     // Create
     profile = await ProviderProfile.create(profileFields);
     res.status(201).json(profile);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Upload provider profile photo
+// @route   POST /api/provider/upload-photo
+// @access  Private (Provider only)
+const uploadPhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image uploaded' });
+    }
+    
+    res.json({
+      success: true,
+      photoUrl: req.file.path
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -144,5 +167,6 @@ module.exports = {
   upsertProviderProfile,
   getProviderProfile,
   searchProviders,
-  getProviderById
+  getProviderById,
+  uploadPhoto
 };

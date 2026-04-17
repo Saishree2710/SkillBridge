@@ -147,7 +147,7 @@ const getProviderBookings = async (req, res) => {
       return res.status(404).json({ message: 'Profile not found' });
     }
 
-    const bookings = await Booking.find({ provider: providerProfile._id }).populate('customer', 'name email');
+    const bookings = await Booking.find({ provider: providerProfile._id }).populate('customer', 'name email phone');
     res.json(bookings);
   } catch (error) {
     console.error(error);
@@ -158,7 +158,10 @@ const getProviderBookings = async (req, res) => {
 // Get bookings for customer
 const getCustomerBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ customer: req.user.id }).populate('provider', 'name serviceCategory averageRating');
+    const bookings = await Booking.find({ customer: req.user.id }).populate({
+      path: 'provider',
+      populate: { path: 'user', select: 'name email phone' }
+    });
     res.json(bookings);
   } catch (error) {
     console.error(error);

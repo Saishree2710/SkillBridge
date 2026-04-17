@@ -54,6 +54,9 @@ const providerProfileSchema = new mongoose.Schema({
     type: String, // URL from Cloudinary
     default: ''
   },
+  phone: {
+    type: String
+  },
   averageRating: {
     type: Number,
     default: 0

@@ -4,13 +4,19 @@ const {
   upsertProviderProfile,
   getProviderProfile,
   searchProviders,
-  getProviderById
+  getProviderById,
+  uploadPhoto
 } = require('../controllers/providerController');
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
-const { parser } = require('../config/cloudinary');
+const upload = require('../middleware/upload');
 
-router.post('/profile', protect, authorizeRoles('provider'), parser.single('profilePhoto'), upsertProviderProfile);
+// Note: UsingPUT or POST for upsert profile is fine, we use POST here.
+router.post('/profile', protect, authorizeRoles('provider'), upsertProviderProfile);
+router.put('/profile', protect, authorizeRoles('provider'), upsertProviderProfile);
 router.get('/profile', protect, authorizeRoles('provider'), getProviderProfile);
+
+// Route for uploading photos
+router.post('/upload-photo', protect, authorizeRoles('provider'), upload.single('photo'), uploadPhoto);
 
 // Public route for search
 router.get('/search', searchProviders);

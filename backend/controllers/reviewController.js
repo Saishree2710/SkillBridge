@@ -26,7 +26,7 @@ const createReview = async (req, res) => {
     // Check for existing review (redundant to DB index, but good for custom error)
     const existingReview = await Review.findOne({ booking: bookingId });
     if (existingReview) {
-      return res.status(400).json({ message: 'You have already reviewed this booking' });
+      return res.status(400).json({ success: false, message: 'You have already reviewed this booking' });
     }
 
     const review = new Review({
@@ -54,13 +54,29 @@ const createReview = async (req, res) => {
       await evaluateBadges(providerId);
     }
 
-    res.status(201).json({ message: 'Review added successfully', review });
+    res.status(201).json({ success: true, message: 'Review added successfully', review });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ message: 'You have already reviewed this booking' });
+      return res.status(400).json({ success: false, message: 'You have already reviewed this booking' });
     }
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get review by booking ID
+// @route   GET /api/reviews/booking/:bookingId
+// @access  Private (Customer only)
+const getReviewByBooking = async (req, res) => {
+  try {
+    const review = await Review.findOne({ booking: req.params.bookingId });
+    if (review) {
+      return res.json({ success: true, exists: true, review });
+    }
+    res.json({ success: true, exists: false });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -82,5 +98,6 @@ const getProviderReviews = async (req, res) => {
 
 module.exports = {
   createReview,
+  getReviewByBooking,
   getProviderReviews
 };
