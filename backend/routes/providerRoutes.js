@@ -10,7 +10,6 @@ const {
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
 
-// Note: UsingPUT or POST for upsert profile is fine, we use POST here.
 router.post('/profile', protect, authorizeRoles('provider'), upsertProviderProfile);
 router.put('/profile', protect, authorizeRoles('provider'), upsertProviderProfile);
 router.get('/profile', protect, authorizeRoles('provider'), getProviderProfile);

@@ -3,11 +3,10 @@ const ProviderProfile = require('../models/ProviderProfile');
 const { sendEmail } = require('../utils/emailService');
 const User = require('../models/User');
 
-// Helper to check if a valid state transition
 const isValidTransition = (current, next) => {
   const transitions = {
     'pending': ['confirmed', 'cancelled'],
-    'confirmed': ['in-progress', 'cancelled'], // Sometimes they have to cancel confirmed
+    'confirmed': ['in-progress', 'cancelled'], 
     'in-progress': ['completed'],
     'completed': [],
     'cancelled': []
@@ -15,7 +14,7 @@ const isValidTransition = (current, next) => {
   return transitions[current] && transitions[current].includes(next);
 };
 
-// Create new booking (Customer only)
+// Create new booking 
 const createBooking = async (req, res) => {
   try {
     const { providerId, date, timeSlot, notes } = req.body;

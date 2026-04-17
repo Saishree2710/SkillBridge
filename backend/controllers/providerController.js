@@ -49,9 +49,6 @@ const upsertProviderProfile = async (req, res) => {
   }
 };
 
-// @desc    Upload provider profile photo
-// @route   POST /api/provider/upload-photo
-// @access  Private (Provider only)
 const uploadPhoto = async (req, res) => {
   try {
     if (!req.file) {
@@ -67,9 +64,6 @@ const uploadPhoto = async (req, res) => {
   }
 };
 
-// @desc    Get logged in provider profile
-// @route   GET /api/provider/profile
-// @access  Private (Provider only)
 const getProviderProfile = async (req, res) => {
   try {
     const profile = await ProviderProfile.findOne({ user: req.user._id });
@@ -84,9 +78,6 @@ const getProviderProfile = async (req, res) => {
   }
 };
 
-// @desc    Search and filter providers
-// @route   GET /api/public/providers
-// @access  Public
 const searchProviders = async (req, res) => {
   try {
     const { category, city, minPrice, maxPrice, userLat, userLng } = req.query;
@@ -143,9 +134,6 @@ const searchProviders = async (req, res) => {
   }
 };
 
-// @desc    Get single provider by ID
-// @route   GET /api/public/providers/:id
-// @access  Public
 const getProviderById = async (req, res) => {
   try {
     const provider = await ProviderProfile.findById(req.params.id).populate('user', 'name email');

@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Load env vars FIRST before routes
+// Load env
 dotenv.config();
 
 const connectDB = require('./config/db');
@@ -17,7 +17,6 @@ connectDB();
 
 const app = express();
 
-// Body parser
 app.use(express.json());
 
 // Enable CORS

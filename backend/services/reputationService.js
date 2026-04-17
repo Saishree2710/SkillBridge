@@ -7,13 +7,11 @@ const recalculateTrustScore = async (providerId) => {
     const profile = await ProviderProfile.findById(providerId);
     if (!profile) return;
 
-    // 1. Average Rating Factor (0-50 pts)
+    
     const ratingFactor = (profile.averageRating / 5) * 50;
 
-    // 2. Completed Jobs Factor (0-25 pts, maxes out at 50 jobs)
     const jobsFactor = Math.min((profile.completedJobs / 50) * 25, 25);
 
-    // 3. Repeat Customer Rate (0-25 pts)
     const bookings = await Booking.find({ provider: providerId, status: 'completed' });
     const uniqueCustomers = new Set(bookings.map(b => b.customer.toString())).size;
     const totalCompleted = profile.completedJobs;
@@ -21,9 +19,7 @@ const recalculateTrustScore = async (providerId) => {
     let repeatFactor = 0;
     if (totalCompleted > 0) {
       const repeatBookings = totalCompleted - uniqueCustomers; 
-      // Ratio of repeat bookings to total bookings
       const repeatRate = repeatBookings / totalCompleted;
-      // Let's say if 30% of your bookings are repeats, you get max points.
       repeatFactor = Math.min((repeatRate / 0.3) * 25, 25);
     }
 
